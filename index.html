@@ -31,8 +31,15 @@
             </div>
 
             <div class="chat-input">
-                <input type="text" id="prompt" placeholder="Type a message..." />
-                <button onclick="askGemini()">Send</button>
+              <select id="contentType" style="padding: 8px; margin-right: 10px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="general">General Question</option>
+                <option value="lessonPlan">Lesson Plan</option>
+                <option value="quiz">Quiz Questions</option>
+                <option value="slides">Presentation Slides Outline</option>
+            </select>
+            <input type="text" id="prompt" placeholder="What topic or concept should the AI cover?" />
+            <button onclick="askGemini()">Send</button>
+        </div>
             </div>
         </div>
 
@@ -88,14 +95,25 @@
                 console.error(error);
             }
         }
+        function constructSpecializedPrompt(contentType, topic) {
+    switch (contentType) {
+        case 'lessonPlan':
+            return `Generate a detailed, single-class **lesson plan** for the topic: "${topic}". The plan should be structured with markdown headings for 'Objective', 'Materials', 'Procedure (5 E Model or similar)', and 'Assessment Idea'. Use markdown formatting.`;
+        case 'quiz':
+            return `Create 5 diverse **quiz questions** (mix of multiple choice, true/false, and short answer) about the topic: "${topic}". Provide the correct answer for each question in a separate section clearly labeled 'Answer Key'. Use markdown lists and bolding.`;
+        case 'slides':
+            return `Outline a **10-slide presentation** on the topic: "${topic}". For each slide, provide a clear title and 3-5 bullet points of key content. Structure the response using markdown headings for each slide.`;
+        case 'visual':
+            return `Describe a creative and highly effective **visual example or analogy** that an instructor could use to explain the concept: "${topic}". The description should be detailed enough to be used directly in a classroom or converted into a graphic.`;
+        case 'general':
+        default:
+            return topic; // Just pass the raw input for general questions
+    }}
 
         // 2. Helper: Append message to the conversation area
         function appendMessage(role, content, id = null) {
             const conversationArea = document.getElementById("conversationArea");
             
-            // Note: We are keeping the initial two messages in the HTML, 
-            // so we don't clear the innerHTML here unless we were starting from scratch.
-
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
             if (id) messageDiv.id = id;
