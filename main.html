@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduGenie</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Quicksand', sans-serif;
+        height: 100%;
+      }
+
+      .main-page {
+        background: linear-gradient(135deg, #d4b3f7, #cfa1f7);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 60px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Stardust shimmer effect */
+      .main-page::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.2) 1px,
+          transparent 1px
+        );
+        background-size: 50px 50px;
+        animation: stardust 20s linear infinite;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes stardust {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(50px, 50px);
+        }
+      }
+
+      /* Glassy bubble letters for title */
+      h1 {
+        font-size: 6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 span {
+        display: inline-block;
+        position: relative;
+        color: #fff;
+        text-shadow: 0 4px 30px rgba(0, 0, 0, 0.1),
+          0 0 20px rgba(255, 255, 255, 0.1);
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+        -webkit-text-fill-color: transparent;
+        background: linear-gradient(135deg, #ffffff55, #ffffffaa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      h1 span::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          circle at 70% 30%,
+          rgba(255, 255, 255, 0.7),
+          transparent 70%
+        );
+        opacity: 0.5;
+        filter: blur(1px);
+        border-radius: 50%;
+        z-index: 1;
+        mix-blend-mode: soft-light;
+      }
+
+      h1::before {
+        content: 'EduGenie';
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: #fff;
+        opacity: 0.1;
+        backdrop-filter: blur(10px) saturate(180%);
+        -webkit-backdrop-filter: blur(10px) saturate(180%);
+        z-index: -1;
+      }
+
+      /* Slogan */
+      .slogan {
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        animation: shimmer-text 3s ease-in-out infinite;
+        z-index: 1;
+      }
+
+      @keyframes shimmer-text {
+        0%,
+        100% {
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+        50% {
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+        }
+      }
+
+      /* Glass Get Started button */
+      .get-started-button {
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 1rem 3rem;
+        font-size: 1.5rem;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+      }
+
+      .get-started-button:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: scale(1.05);
+      }
+
+      /* Genie styles */
+      .genie-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 1;
+      }
+
+      .genie-img {
+        width: 120px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+
+      .speech-bubble {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        margin-top: 10px;
+        max-width: 220px;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #fff;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-page">
+      <h1><span>EduGenie</span></h1>
+      <h2 class="slogan">The classroom companion that works for everyone.</h2>
+      <button
+        class="get-started-button"
+        onclick="window.location.href='get-started.html'"
+      >
+        Get Started
+      </button>
+
+      <div class="genie-container">
+        <img src="genie.png" alt="EduGenie Genie" class="genie-img" />
+        <div class="speech-bubble" id="speech-bubble">
+          Hint: Click 'Get Started' to begin your adventure!
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const messages = [
+        "Hint: Click 'Get Started' to begin your adventure!",
+        "Need help creating a lesson? I’ve got you covered!",
+        "Ask me for a summary spell — I’ll make complex topics easy.",
+        "EduGenie at your service — what’s your wish today?",
+      ];
+
+      let msgIndex = 0;
+      const bubble = document.getElementById('speech-bubble');
+
+      setInterval(() => {
+        msgIndex = (msgIndex + 1) % messages.length;
+        bubble.textContent = messages[msgIndex];
+      }, 4000);
+    </script>
+  </body>
+</html>
