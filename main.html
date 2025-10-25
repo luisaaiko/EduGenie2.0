@@ -32,25 +32,6 @@
         overflow: hidden;
       }
 
-      /* Stardust shimmer effect */
-      .main-page::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(
-          circle,
-          rgba(255, 255, 255, 0.2) 1px,
-          transparent 1px
-        );
-        background-size: 50px 50px;
-        animation: stardust 20s linear infinite;
-        pointer-events: none;
-        z-index: 0;
-      }
-
       @keyframes stardust {
         0% {
           transform: translate(0, 0);
@@ -193,6 +174,7 @@
         box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
       }
     </style>
+    
   </head>
   <body>
     <div class="main-page">

@@ -45,7 +45,24 @@
 
     <script>
         // Array to hold the conversation history (Q&A objects)
+        // Stored as { role: 'user' | 'model', text: '...' } for server compatibility
         let conversationHistory = [];
+        const MESSAGE_BOX_CONTAINER_ID = "messageBoxContainer";
+
+        // --- Custom Message Box for Alerts/Confirms ---
+        // (Replaces window.alert and window.confirm for better UI/compatibility)
+        function showMessageBox(message, type = 'info', duration = 3000) {
+            const container = document.getElementById(MESSAGE_BOX_CONTAINER_ID);
+            const box = document.createElement('div');
+            box.className = `message-box ${type}`;
+            box.textContent = message;
+            
+            container.appendChild(box);
+
+            setTimeout(() => {
+                box.remove();
+            }, duration);
+        }
 
         // 1. Core Logic: Ask Gemini
         async function askGemini() {
@@ -54,78 +71,78 @@
             
             if (!prompt) return;
 
-            // Display user question immediately
+            // 1a. Display user question immediately
             appendMessage('user', prompt);
-            promptInput.value = ''; // Clear input field
+            
+            // NOTE: We DO NOT push the user message to conversationHistory here. 
+            // The server will add this current prompt as the final turn. 
+            // We only send COMPLETED turns in the 'history' payload.
 
-            // Add a temporary 'Loading...' message
+            promptInput.value = ''; // Clear input field
+            promptInput.disabled = true;
+
+            // 1b. Add a temporary 'Loading...' message
             const loadingMessageId = `loading-${Date.now()}`;
-            appendMessage('bot', '...', loadingMessageId); // Use 'bot' role
+            appendMessage('bot', 'Thinking...', loadingMessageId); 
             
             try {
+                // IMPORTANT: Send the full history array (containing only completed turns) 
+                // along with the new prompt.
                 const res = await fetch("http://localhost:5001/ask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ prompt, history: conversationHistory })
                 });
 
                 const data = await res.json();
                 
-                // Remove the temporary loading message
+                // 1c. Remove the temporary loading message
                 const loadingElement = document.getElementById(loadingMessageId);
                 if (loadingElement) loadingElement.remove();
+                promptInput.disabled = false;
 
                 if (data.answer) {
-                    // Store in history
-                    conversationHistory.push({ role: 'user', content: prompt });
-                    conversationHistory.push({ role: 'ai', content: data.answer });
+                    // Only upon success, we record the completed turn (User Q + Model A)
+                    // into the client-side history for the NEXT request.
+                    conversationHistory.push({ role: 'user', text: prompt }); // Correctly push user turn
+                    conversationHistory.push({ role: 'model', text: data.answer }); // Correctly push model turn
 
                     // Display the final AI answer
-                    appendMessage('bot', data.answer); // Use 'bot' role
+                    appendMessage('bot', data.answer); 
                 } else {
-                    appendMessage('bot', `Error: ${data.error || "An unknown error occurred."}`);
+                    const errorMessage = data.error || "An unknown error occurred.";
+                    appendMessage('bot', `**Error:** ${errorMessage}`);
+                    showMessageBox(`API Error: ${errorMessage}`, 'confirm', 5000); 
                 }
 
             } catch (error) {
-                // Remove the temporary loading message
+                // 1d. Handle network errors
                 const loadingElement = document.getElementById(loadingMessageId);
                 if (loadingElement) loadingElement.remove();
+                promptInput.disabled = false;
 
-                appendMessage('bot', "Network Error: Could not connect to the server.");
+                const networkErrorMsg = "Network Error: Could not connect to the server. Ensure the server is running on http://localhost:5001.";
+                appendMessage('bot', networkErrorMsg);
+                showMessageBox(networkErrorMsg, 'confirm', 7000);
                 console.error(error);
             }
         }
-        function constructSpecializedPrompt(contentType, topic) {
-    switch (contentType) {
-        case 'lessonPlan':
-            return `Generate a detailed, single-class **lesson plan** for the topic: "${topic}". The plan should be structured with markdown headings for 'Objective', 'Materials', 'Procedure (5 E Model or similar)', and 'Assessment Idea'. Use markdown formatting.`;
-        case 'quiz':
-            return `Create 5 diverse **quiz questions** (mix of multiple choice, true/false, and short answer) about the topic: "${topic}". Provide the correct answer for each question in a separate section clearly labeled 'Answer Key'. Use markdown lists and bolding.`;
-        case 'slides':
-            return `Outline a **10-slide presentation** on the topic: "${topic}". For each slide, provide a clear title and 3-5 bullet points of key content. Structure the response using markdown headings for each slide.`;
-        case 'visual':
-            return `Describe a creative and highly effective **visual example or analogy** that an instructor could use to explain the concept: "${topic}". The description should be detailed enough to be used directly in a classroom or converted into a graphic.`;
-        case 'general':
-        default:
-            return topic; // Just pass the raw input for general questions
-    }}
 
         // 2. Helper: Append message to the conversation area
         function appendMessage(role, content, id = null) {
             const conversationArea = document.getElementById("conversationArea");
             
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
+            const displayRole = role === 'user' ? 'user' : 'bot'; 
+            messageDiv.className = `message ${displayRole}`;
             if (id) messageDiv.id = id;
 
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'bubble';
 
-            if (role === 'user') {
-                // User content is plain text
+            if (displayRole === 'user') {
                 bubbleDiv.textContent = content;
-            } else { // role === 'bot'
-                // AI content uses marked.parse for Markdown to HTML
+            } else { 
                 const formattedHTML = marked.parse(content);
                 bubbleDiv.innerHTML = formattedHTML;
             }
@@ -140,19 +157,23 @@
 
         // 3. Clear Conversation Function
         function clearConversation() {
-            if (!confirm("Are you sure you want to clear the entire conversation history? This cannot be undone.")) {
+            // Using window.confirm as a temporary workaround for confirmation dialogs
+            const isConfirmed = window.confirm("Are you sure you want to clear the entire conversation history?");
+            
+            if (!isConfirmed) {
                 return;
             }
+            
             conversationHistory = []; // Clear the JavaScript array
             
-            // Clear the chat box completely and reset to an empty state
+            // Clear the chat box completely and reset to the initial state
             const conversationArea = document.getElementById("conversationArea");
             conversationArea.innerHTML = `
                 <div class="message bot">
-                    <div class="bubble">Hi there! Let's get started, what grade are you teaching?</div>
+                    <div class="bubble">Hi there! I'm your lesson planning assistant. To get started, what is the **topic or subject** you would like to work on?</div>
                 </div>
             `; 
-            alert("Conversation cleared!");
+            showMessageBox("Conversation cleared!", 'info');
         }
 
 
@@ -160,10 +181,9 @@
         function saveConversationAsPdf() {
             const conversationArea = document.getElementById('conversationArea');
 
-            // Simple check to see if content is more than the initial messages
             if (conversationHistory.length === 0) {
-                 alert('Please start a conversation before saving!');
-                 return;
+                showMessageBox('Please start a conversation before saving!', 'confirm');
+                return;
             }
 
             // Configuration for the PDF generation
@@ -176,8 +196,10 @@
             };
 
             // Use html2pdf to generate and download the PDF
+            showMessageBox('Generating PDF...', 'info', 2000);
             html2pdf().set(pdfOptions).from(conversationArea).save();
         }
+
     </script>
     </body>
 </html>
