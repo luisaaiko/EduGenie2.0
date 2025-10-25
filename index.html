@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ask Gemini</title>
+  <style>
+    body { font-family: Arial; margin: 50px; }
+    input, button { padding: 10px; font-size: 16px; }
+    #response { margin-top: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Ask Google Gemini</h1>
+  <input type="text" id="prompt" placeholder="Ask a question..." size="50">
+  <button onclick="askGemini()">Ask</button>
+
+  <div id="response"></div>
+
+  <script>
+    async function askGemini() {
+      const prompt = document.getElementById("prompt").value;
+      const responseDiv = document.getElementById("response");
+      responseDiv.textContent = "Loading...";
+
+      const res = await fetch("http://localhost:5001/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+      responseDiv.textContent = data.answer || data.error;
+    }
+  </script>
+</body>
+</html>
