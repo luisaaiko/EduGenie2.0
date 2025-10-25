@@ -1,37 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ask Gemini</title>
-  <style>
-    body { font-family: Arial; margin: 50px; }
-    input, button { padding: 10px; font-size: 16px; }
-    #response { margin-top: 20px; white-space: pre-wrap; }
-  </style>
-</head>
-<body>
-  <h1>Ask Google Gemini</h1>
-  <input type="text" id="prompt" placeholder="Ask a question..." size="50">
-  <button onclick="askGemini()">Ask</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ask Gemini</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      body {
+        font-family: Arial;
+        margin: 50px;
+      }
+      input,
+      button {
+        padding: 10px;
+        font-size: 16px;
+      }
+      #response {
+        margin-top: 20px;
+        white-space: pre-wrap;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+      }
+      #savedResponses {
+        margin-top: 30px;
+      }
+      .saved-item {
+        border: 1px solid #eee;
+        padding: 10px;
+        margin-bottom: 15px;
+        background-color: #f9f9f9;
+      }
+      .saved-item strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body onload="loadSavedResponses()">
+    <h1>Ask Google Gemini</h1>
+    <input type="text" id="prompt" placeholder="Ask a question..." size="50" />
+    <button onclick="askGemini()">Ask</button>
 
-  <div id="response"></div>
+    <h2>Current Response</h2>
+    <div id="response"></div>
 
-  <script>
-    async function askGemini() {
-      const prompt = document.getElementById("prompt").value;
-      const responseDiv = document.getElementById("response");
-      responseDiv.textContent = "Loading...";
+    <button
+      id="saveButton"
+      style="display: none; margin-top: 10px"
+      onclick="saveCurrentResponse()"
+    >
+      Save Response
+    </button>
 
-      const res = await fetch("http://localhost:5001/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
+    <hr />
 
-      const data = await res.json();
-      responseDiv.textContent = data.answer || data.error;
-    }
-  </script>
-</body>
+    <h2>Saved Responses (Browser Storage)</h2>
+    <div id="savedResponses"></div>
+
+    <script>
+      // 1. Storage Key and Global Variable remain the same
+      const STORAGE_KEY = "gemini_saved_qas";
+      let lastSuccessfulQA = null;
+
+      // Helper functions (get and set) remain the same
+      function getSavedQAs() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : [];
+      }
+
+      function setSavedQAs(qas) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(qas));
+      }
+
+      // 💡 NEW FUNCTION: Handles the deletion of a specific entry
+      function deleteResponse(indexToDelete) {
+        if (!confirm("Are you sure you want to delete this saved response?")) {
+          return;
+        }
+
+        const qas = getSavedQAs();
+
+        // Remove the item at the specified index
+        qas.splice(indexToDelete, 1);
+
+        // Save the updated array back to localStorage
+        setSavedQAs(qas);
+
+        // Reload the display
+        loadSavedResponses();
+
+        alert("Response deleted.");
+      }
+
+      // 2. Load and Display Saved Responses (MODIFIED)
+      function loadSavedResponses() {
+        const qas = getSavedQAs();
+        const savedResponsesDiv = document.getElementById("savedResponses");
+        savedResponsesDiv.innerHTML = '';
+
+        if (qas.length === 0) {
+          savedResponsesDiv.innerHTML = "<p>No responses saved yet.</p>";
+          return;
+        }
+
+        // We iterate through the array to display entries.
+        qas
+          .slice()
+          .reverse()
+          .forEach((qa, reverseIndex) => {
+            // Calculate the *original* index in the array for accurate deletion
+            const originalIndex = qas.length - 1 - reverseIndex;
+
+            const formattedAnswerHTML = marked.parse(qa.answer);
+
+            const item = document.createElement("div");
+            item.className = "saved-item";
+            item.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex-grow: 1;">
+                    <strong>Q:</strong> ${qa.prompt}
+                    <hr style="border: none; border-top: 1px dotted #ccc; margin: 5px 0;">
+                    
+                    <div class="saved-answer-content">
+                        ${formattedAnswerHTML}
+                    </div>
+                </div>
+                <button 
+                    onclick="deleteResponse(${originalIndex})" 
+                    style="margin-left: 10px; background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer;"
+                >
+                    Delete
+                </button>
+            </div>
+        `;
+        savedResponsesDiv.appendChild(item);
+          });
+      }
+
+      // 3. Save Button Logic (remains the same)
+      function saveCurrentResponse() {
+        if (!lastSuccessfulQA) return;
+
+        const qas = getSavedQAs();
+        qas.push(lastSuccessfulQA);
+        setSavedQAs(qas);
+
+        lastSuccessfulQA = null;
+        document.getElementById("saveButton").style.display = "none";
+
+        loadSavedResponses();
+        alert("Response saved successfully!");
+      }
+
+      // 4. Main Query Function (remains the same)
+      async function askGemini() {
+        // ... implementation remains the same ...
+        const prompt = document.getElementById("prompt").value;
+        const responseDiv = document.getElementById("response");
+        const saveButton = document.getElementById("saveButton");
+
+        responseDiv.textContent = "Loading...";
+        saveButton.style.display = "none";
+        lastSuccessfulQA = null;
+
+        try {
+          const res = await fetch("http://localhost:5001/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt }),
+          });
+
+          const data = await res.json();
+
+          if (data.answer) {
+            const rawMarkdown = data.answer;
+
+            // Use the marked.js library to convert Markdown text to HTML
+            const formattedHTML = marked.parse(rawMarkdown);
+
+            // 💡 IMPORTANT: Use innerHTML to render the HTML tags
+            responseDiv.innerHTML = formattedHTML;
+
+            // Store the raw Markdown for saving (or the HTML, your choice)
+            // Storing the RAW is often better for future use.
+            lastSuccessfulQA = {
+              prompt: prompt,
+              answer: rawMarkdown,
+              timestamp: new Date().toISOString(),
+            };
+            saveButton.style.display = "block";
+          } else {
+            responseDiv.textContent =
+              data.error || "An unknown error occurred.";
+          }
+        } catch (error) {
+          responseDiv.textContent =
+            "Network Error: Could not connect to the server.";
+        }
+      }
+    </script>
+  </body>
 </html>
