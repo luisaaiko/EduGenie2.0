@@ -1,204 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ask Gemini</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-      body {
-        font-family: Arial;
-        margin: 50px;
-      }
-      input,
-      button {
-        padding: 10px;
-        font-size: 16px;
-      }
-      #response {
-        margin-top: 20px;
-        white-space: pre-wrap;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 10px;
-      }
-      #savedResponses {
-        margin-top: 30px;
-      }
-      .saved-item {
-        border: 1px solid #eee;
-        padding: 10px;
-        margin-bottom: 15px;
-        background-color: #f9f9f9;
-      }
-      .saved-item strong {
-        display: block;
-        margin-bottom: 5px;
-        color: #333;
-      }
-    </style>
-  </head>
-  <body onload="loadSavedResponses()">
-    <h1>Ask Google Gemini</h1>
-    <input type="text" id="prompt" placeholder="Ask a question..." size="50" />
-    <button onclick="askGemini()">Ask</button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>EduGenie</title>
+        <link rel = "stylesheet" href = "chatPage.css">
 
-    <h2>Current Response</h2>
-    <div id="response"></div>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        
+        </head>
+    <body>
+        <div class="chat-container">
+            <div class="chat-header">eduGenie</div>
 
-    <button
-      id="saveButton"
-      style="display: none; margin-top: 10px"
-      onclick="saveCurrentResponse()"
-    >
-      Save Response
-    </button>
+            <div id="controls" style="padding: 10px 20px 0; display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="saveConversationAsPdf()" style="font-size: 14px; padding: 5px 10px;">Save as PDF</button>
+                <button onclick="clearConversation()" style="font-size: 14px; padding: 5px 10px;">Clear Conversation</button>
+            </div>
+            
+            <div class="chat-box" id="conversationArea">
+                <div class="message bot">
+                    <div class="bubble">Hi there! Let's get started, ask me a question</div>
+                </div>
+            </div>
 
-    <hr />
-
-    <h2>Saved Responses (Browser Storage)</h2>
-    <div id="savedResponses"></div>
+            <div class="chat-input">
+                <input type="text" id="prompt" placeholder="Type a message..." />
+                <button onclick="askGemini()">Send</button>
+            </div>
+        </div>
 
     <script>
-      // 1. Storage Key and Global Variable remain the same
-      const STORAGE_KEY = "gemini_saved_qas";
-      let lastSuccessfulQA = null;
+        // Array to hold the conversation history (Q&A objects)
+        let conversationHistory = [];
 
-      // Helper functions (get and set) remain the same
-      function getSavedQAs() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-      }
+        // 1. Core Logic: Ask Gemini
+        async function askGemini() {
+            const promptInput = document.getElementById("prompt");
+            const prompt = promptInput.value.trim();
+            
+            if (!prompt) return;
 
-      function setSavedQAs(qas) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(qas));
-      }
+            // Display user question immediately
+            appendMessage('user', prompt);
+            promptInput.value = ''; // Clear input field
 
-      // 💡 NEW FUNCTION: Handles the deletion of a specific entry
-      function deleteResponse(indexToDelete) {
-        if (!confirm("Are you sure you want to delete this saved response?")) {
-          return;
+            // Add a temporary 'Loading...' message
+            const loadingMessageId = `loading-${Date.now()}`;
+            appendMessage('bot', '...', loadingMessageId); // Use 'bot' role
+            
+            try {
+                const res = await fetch("http://localhost:5001/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt })
+                });
+
+                const data = await res.json();
+                
+                // Remove the temporary loading message
+                const loadingElement = document.getElementById(loadingMessageId);
+                if (loadingElement) loadingElement.remove();
+
+                if (data.answer) {
+                    // Store in history
+                    conversationHistory.push({ role: 'user', content: prompt });
+                    conversationHistory.push({ role: 'ai', content: data.answer });
+
+                    // Display the final AI answer
+                    appendMessage('bot', data.answer); // Use 'bot' role
+                } else {
+                    appendMessage('bot', `Error: ${data.error || "An unknown error occurred."}`);
+                }
+
+            } catch (error) {
+                // Remove the temporary loading message
+                const loadingElement = document.getElementById(loadingMessageId);
+                if (loadingElement) loadingElement.remove();
+
+                appendMessage('bot', "Network Error: Could not connect to the server.");
+                console.error(error);
+            }
         }
 
-        const qas = getSavedQAs();
+        // 2. Helper: Append message to the conversation area
+        function appendMessage(role, content, id = null) {
+            const conversationArea = document.getElementById("conversationArea");
+            
+            // Note: We are keeping the initial two messages in the HTML, 
+            // so we don't clear the innerHTML here unless we were starting from scratch.
 
-        // Remove the item at the specified index
-        qas.splice(indexToDelete, 1);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            if (id) messageDiv.id = id;
 
-        // Save the updated array back to localStorage
-        setSavedQAs(qas);
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'bubble';
 
-        // Reload the display
-        loadSavedResponses();
-
-        alert("Response deleted.");
-      }
-
-      // 2. Load and Display Saved Responses (MODIFIED)
-      function loadSavedResponses() {
-        const qas = getSavedQAs();
-        const savedResponsesDiv = document.getElementById("savedResponses");
-        savedResponsesDiv.innerHTML = '';
-
-        if (qas.length === 0) {
-          savedResponsesDiv.innerHTML = "<p>No responses saved yet.</p>";
-          return;
+            if (role === 'user') {
+                // User content is plain text
+                bubbleDiv.textContent = content;
+            } else { // role === 'bot'
+                // AI content uses marked.parse for Markdown to HTML
+                const formattedHTML = marked.parse(content);
+                bubbleDiv.innerHTML = formattedHTML;
+            }
+            
+            messageDiv.appendChild(bubbleDiv);
+            conversationArea.appendChild(messageDiv);
+            
+            // Scroll to the bottom
+            conversationArea.scrollTop = conversationArea.scrollHeight;
         }
 
-        // We iterate through the array to display entries.
-        qas
-          .slice()
-          .reverse()
-          .forEach((qa, reverseIndex) => {
-            // Calculate the *original* index in the array for accurate deletion
-            const originalIndex = qas.length - 1 - reverseIndex;
 
-            const formattedAnswerHTML = marked.parse(qa.answer);
-
-            const item = document.createElement("div");
-            item.className = "saved-item";
-            item.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div style="flex-grow: 1;">
-                    <strong>Q:</strong> ${qa.prompt}
-                    <hr style="border: none; border-top: 1px dotted #ccc; margin: 5px 0;">
-                    
-                    <div class="saved-answer-content">
-                        ${formattedAnswerHTML}
-                    </div>
+        // 3. Clear Conversation Function
+        function clearConversation() {
+            if (!confirm("Are you sure you want to clear the entire conversation history? This cannot be undone.")) {
+                return;
+            }
+            conversationHistory = []; // Clear the JavaScript array
+            
+            // Clear the chat box completely and reset to an empty state
+            const conversationArea = document.getElementById("conversationArea");
+            conversationArea.innerHTML = `
+                <div class="message bot">
+                    <div class="bubble">Hi there! Let's get started, what grade are you teaching?</div>
                 </div>
-                <button 
-                    onclick="deleteResponse(${originalIndex})" 
-                    style="margin-left: 10px; background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer;"
-                >
-                    Delete
-                </button>
-            </div>
-        `;
-        savedResponsesDiv.appendChild(item);
-          });
-      }
-
-      // 3. Save Button Logic (remains the same)
-      function saveCurrentResponse() {
-        if (!lastSuccessfulQA) return;
-
-        const qas = getSavedQAs();
-        qas.push(lastSuccessfulQA);
-        setSavedQAs(qas);
-
-        lastSuccessfulQA = null;
-        document.getElementById("saveButton").style.display = "none";
-
-        loadSavedResponses();
-        alert("Response saved successfully!");
-      }
-
-      // 4. Main Query Function (remains the same)
-      async function askGemini() {
-        // ... implementation remains the same ...
-        const prompt = document.getElementById("prompt").value;
-        const responseDiv = document.getElementById("response");
-        const saveButton = document.getElementById("saveButton");
-
-        responseDiv.textContent = "Loading...";
-        saveButton.style.display = "none";
-        lastSuccessfulQA = null;
-
-        try {
-          const res = await fetch("http://localhost:5001/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt }),
-          });
-
-          const data = await res.json();
-
-          if (data.answer) {
-            const rawMarkdown = data.answer;
-
-            // Use the marked.js library to convert Markdown text to HTML
-            const formattedHTML = marked.parse(rawMarkdown);
-
-            // 💡 IMPORTANT: Use innerHTML to render the HTML tags
-            responseDiv.innerHTML = formattedHTML;
-
-            // Store the raw Markdown for saving (or the HTML, your choice)
-            // Storing the RAW is often better for future use.
-            lastSuccessfulQA = {
-              prompt: prompt,
-              answer: rawMarkdown,
-              timestamp: new Date().toISOString(),
-            };
-            saveButton.style.display = "block";
-          } else {
-            responseDiv.textContent =
-              data.error || "An unknown error occurred.";
-          }
-        } catch (error) {
-          responseDiv.textContent =
-            "Network Error: Could not connect to the server.";
+            `; 
+            alert("Conversation cleared!");
         }
-      }
+
+
+        // 4. Save as PDF Function (Uses html2pdf.js)
+        function saveConversationAsPdf() {
+            const conversationArea = document.getElementById('conversationArea');
+
+            // Simple check to see if content is more than the initial messages
+            if (conversationHistory.length === 0) {
+                 alert('Please start a conversation before saving!');
+                 return;
+            }
+
+            // Configuration for the PDF generation
+            const pdfOptions = {
+                margin: 10,
+                filename: 'EduGenie_Chat_Session.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, logging: false, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Use html2pdf to generate and download the PDF
+            html2pdf().set(pdfOptions).from(conversationArea).save();
+        }
     </script>
-  </body>
+    </body>
 </html>
