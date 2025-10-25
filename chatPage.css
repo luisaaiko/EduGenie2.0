@@ -4,7 +4,7 @@
 }
 
 body {
-  background: #f5f4e2;
+  background: #d4b3f7;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,8 +26,8 @@ body {
 }
 
 .chat-header {
-  background: #701769;
-  color: white;
+  background: #d99ed4;
+  color: black;
   text-align: center;
   padding: 15px;
   font-size: 1.2em;
@@ -38,7 +38,7 @@ body {
   flex: 1;
   padding: 15px;
   overflow-y: auto;
-  background: #f9f9f9;
+  
 }
 
 .message {
@@ -59,9 +59,10 @@ body {
 }
 
 .message.bot .bubble {
-  background: #e5e5ea;
+  background: #e5d9f0;
   color: #000;
   border-bottom-left-radius: 0;
+  background-image: linear-gradient(to top, rgb(175, 106, 175), #e5d9f0)
 }
 
 .message.user .bubble {
@@ -108,7 +109,7 @@ body {
 }
 
 #controls button {
-  background-color: white;
+  background-color: #edd2eb;
   border-radius: 50px;
   border: 1px #701769 solid;
   padding: 10px;
@@ -121,6 +122,6 @@ body {
 }
 
 select {
-  color: #701769;
-
+  background-color: #edd2eb;
+  font-size: 14px;
 }
