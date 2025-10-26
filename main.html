@@ -168,10 +168,210 @@ h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:9.5rem; le
   </div>
   
 
+<<<<<<< HEAD
   <div class="genie-container">
     <img src="imgs/genie.png" alt="EduGenie Genie" class="genie-img" />
     <div class="genie-bubble">
       <p id="genie-text">Stand back! I’m about to sprinkle some learning magic!</p>
+=======
+    <link rel="icon" href="imgs/favicon.ico">
+
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Quicksand', sans-serif;
+        height: 100%;
+      }
+
+      .main-page {
+        background: linear-gradient(135deg, #d4b3f7, #cfa1f7);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 60px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      @keyframes stardust {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(50px, 50px);
+        }
+      }
+
+      /* Glassy bubble letters for title */
+      h1 {
+        font-size: 6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 span {
+  font-family: 'Sniglet', cursive;
+  font-weight: 800;
+  font-size: 8rem;
+  letter-spacing: 0.15em;
+  color: transparent;
+  background: linear-gradient(145deg, #ffffffcc, #ffffff55);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
+  text-shadow:
+    0 0 8px rgba(170, 100, 255, 0.7),
+    0 0 18px rgba(170, 100, 255, 0.4),
+    0 0 30px rgba(170, 100, 255, 0.2);
+  position: relative;
+  animation: purplePulse 4s ease-in-out infinite;
+}
+
+h1 span::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    rgba(255, 255, 255, 0.7),
+    transparent 0%
+  );
+  opacity: 0.5;
+  filter: blur(1px);
+  border-radius: 50%;
+  z-index: 1;
+  mix-blend-mode: soft-light;
+}
+
+
+      h1 span::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 60%;
+  height: 25%;
+  background: radial-gradient(circle, rgba(255,255,255,0.7), transparent 70%);
+  opacity: 0.4;
+  filter: blur(6px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+
+
+
+      /* Slogan */
+      .slogan {
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        animation: shimmer-text 3s ease-in-out infinite;
+        z-index: 1;
+      }
+
+      @keyframes shimmer-text {
+        0%,
+        100% {
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+        50% {
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+        }
+      }
+
+      /* Glass Get Started button */
+      .get-started-button {
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 1rem 3rem;
+        font-size: 1.5rem;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+      }
+
+      .get-started-button:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: scale(1.05);
+      }
+
+      /* Genie styles */
+      .genie-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 1;
+      }
+
+      .genie-img {
+        width: 120px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+
+      .speech-bubble {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        margin-top: 10px;
+        max-width: 220px;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #fff;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+
+      
+    </style>
+    
+  </head>
+  <body>
+    <div class="main-page">
+      <h1><span>EduGenie</span></h1>
+      <h2 class="slogan">The classroom companion that works for everyone.</h2>
+      <button
+        class="get-started-button"
+        onclick="window.location.href='index.html'"
+      >
+        Get Started
+      </button>
+
+      <div class="genie-container">
+        <img src="imgs/genie.png" alt="EduGenie Genie" class="genie-img" />
+        <div class="speech-bubble" id="speech-bubble">
+          Hint: Click 'Get Started' to begin your adventure!
+        </div>
+      </div>
+>>>>>>> 131286d5d2c905146e907fdf7bbd42b47935670d
     </div>
   </div>
 </div>

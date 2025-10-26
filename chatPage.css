@@ -4,7 +4,7 @@
 }
 
 body {
-  background: #d4b3f7;
+  background: #4b0b79;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,8 +26,9 @@ body {
 }
 
 .chat-header {
-  background: #d99ed4;
-  color: black;
+  background-image: url("imgs/stars.jpg");
+  background-position: center;
+  background-size: 60%;
   text-align: center;
   padding: 15px;
   font-size: 1.2em;
@@ -38,7 +39,6 @@ body {
   flex: 1;
   padding: 15px;
   overflow-y: auto;
-  
 }
 
 .message {
@@ -62,12 +62,12 @@ body {
   background: #e5d9f0;
   color: #000;
   border-bottom-left-radius: 0;
-  background-image: linear-gradient(to top, rgb(175, 106, 175), #e5d9f0)
+  background-image: linear-gradient(to top, rgb(175, 106, 175), #e5d9f0);
 }
 
 .message.user .bubble {
-  background: #95408e;
-  color: #fff;
+  background: #96248d;
+  color: #ffffff;
   border-bottom-right-radius: 0;
 }
 
@@ -85,7 +85,7 @@ body {
 }
 
 .chat-input button {
-  background: #701769;
+  background: #D17AFF;
   color: white;
   border: none;
   padding: 0 20px;
@@ -124,4 +124,9 @@ body {
 select {
   background-color: #edd2eb;
   font-size: 14px;
+}
+
+.bubble img {
+  vertical-align: middle;
+  margin-left: 5px; /* space between text and image */
 }
