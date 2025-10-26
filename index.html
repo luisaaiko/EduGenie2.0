@@ -244,7 +244,7 @@ h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:10rem; let
 <body>
 
   <div class="main-page">
-
+    <canvas id="starfield"></canvas>
     <h1><span>EduGenie</span></h1>
     <h2 class="slogan" id="typed-text"></h2>
   
@@ -318,7 +318,7 @@ setInterval(()=>{ msgIndex=(msgIndex+1)%messages.length; bubbleText.textContent=
 (function(){
   const canvas=document.getElementById('starfield');
   const ctx=canvas.getContext('2d');
-  const chatContainer = document.querySelector('.chat-container')
+  const chatContainer = document.body
   let stars=[],width=0,height=0,dpr=1;
   const STAR_DENSITY=0.00006;
 
