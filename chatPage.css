@@ -26,11 +26,9 @@ body {
 }
 
 .chat-header {
-  background-image: 
-    url('imgs/stars.png');
-    linear-gradient(to bottom, white, #d99ed4);
+  background-color: #65085d;
   background-size: 10px;
-  color: black;
+  color: white;
   text-align: center;
   padding: 15px;
   font-size: 1.2em;
