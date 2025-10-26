@@ -1,226 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>EduGenie</title>
-        <link rel = "stylesheet" href = "chatPage.css">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduGenie</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Sniglet:wght@800&display=swap" rel="stylesheet" />
+<link rel="icon" href="imgs/icon.png">
+<style>
+html, body {
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family: 'Quicksand', sans-serif;
+  overflow:hidden;
+  background: linear-gradient(135deg, #2c0d3c, #4b1b7d); /* darker gradient for starry effect */
+}
+#starfield {
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+}
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-        
-        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-        <link rel="icon" href="imgs/favicon.ico">
-        
-        </head>
-    <body>
-        <div class="chat-container">
-            <div class="chat-header">EduGenie</div>
-            <div id="controls" style="padding: 10px 20px 0; display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="saveFinalOutput()" style="font-size: 14px; padding: 5px 10px;">Save as txt</button>
-                <button onclick="clearConversation()" style="font-size: 14px; padding: 5px 10px;">Clear Conversation</button>
-            </div>
-            
-            <div class="chat-box" id="conversationArea">
-                    
-                <div class="message bot">
-                    <div class="bubble">Hello, I'm EduGenie!<img src="imgs/genie.png" alt="Genie" width = "25px" height = "auto"><br> Your smart companion for teaching and learning. </div>
-                </div>
-                <div class = "message bot">
-                    <div class = "bubble">I help teachers create lesson plans, organize study materials, and craft engaging classroom activities. For students, I provide clear explanations, study guides, and interactive learning support. Think of me as your genie for education: I make planning, learning, and teaching easier, faster, and more fun!</div>
-                </div>
-                <div class="message bot">
-                    <div class="bubble">What would you like to create today? I can make an outline for a lesson, create a quiz, plan out slides, or anything else you wish for!</div>
-                </div>
-                
-            </div>
+/* Top-left icon */
+.top-left-icon {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 85px;
+  height: auto;
+  z-index: 10;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  padding: 8px;
+  box-shadow:
+    0 0 20px rgba(166,108,255,0.8),
+    0 0 40px rgba(166,108,255,0.5),
+    0 0 60px rgba(166,108,255,0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.top-left-icon:hover {
+  transform: scale(1.3);
+  box-shadow:
+    0 0 30px rgba(186,128,255,0.9),
+    0 0 60px rgba(166,108,255,0.7),
+    0 0 90px rgba(146,88,235,0.5);
+}
 
-            <div class="chat-input">
-              <!-- <select id="contentType" style="padding: 8px; margin-right: 10px; border-radius: 4px; border: 1px solid #ccc;">
-                <option value="general">General Question</option>
-                <option value="lessonPlan">Lesson Plan</option>
-                <option value="quiz">Quiz Questions</option>
-                <option value="slides">Presentation Slides Outline</option>
-            </select> -->
-            <input type="text" autofocus id="prompt" placeholder="Ask me anything… your wish for knowledge is my command! ✨" />
-            <button onclick="askGemini()">Send</button>
+/* Page content */
+.main-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 60px;
+  z-index:1;
+  color:#fff;
+}
+h1 { font-size:6rem; font-weight:800; text-transform:uppercase; text-align:center; position:relative; z-index:1; }
+h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:9.5rem; letter-spacing:0.15em; color:transparent; background: linear-gradient(145deg,#ffffffcc,#ffffff55); -webkit-background-clip:text; -webkit-text-fill-color:transparent; -webkit-text-stroke:1px rgba(255,255,255,0.4); text-shadow:0 0 8px rgba(170,100,255,0.7),0 0 18px rgba(170,100,255,0.4),0 0 30px rgba(170,100,255,0.2); position:relative; animation: purplePulse 4s ease-in-out infinite;}
+.slogan { font-size:1.5rem; margin-bottom:1rem; margin-top: -1rem; text-shadow:0 0 8px rgba(255,255,255,0.6); animation: shimmer-text 3s ease-in-out infinite; }
+@keyframes shimmer-text {0%,100%{text-shadow:0 0 8px rgba(255,255,255,0.6);}50%{text-shadow:0 0 20px rgba(255,255,255,0.9);}}
+
+/* Get Started Button */
+.get-started-button {
+  background: rgba(166,108,255,1);
+  border: 2px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  padding: 1rem 3rem;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: absolute;
+  bottom: 400px;
+  left: 750px;
+  z-index: 1;
+  box-shadow: 0 0 20px rgba(166,108,255,0.7),0 0 40px rgba(166,108,255,0.4);
+}
+.get-started-button:hover {
+  background: rgba(186,128,255,1);
+  transform: scale(1.08);
+  box-shadow: 0 0 30px rgba(186,128,255,0.9),0 0 60px rgba(166,108,255,0.6);
+}
+
+/* Container on the left side */
+.left-magic {
+  position: absolute;
+  left: 20px; /* move right (increase number = further right) */
+  bottom: 90px;
+  width: 400px; /* expand the space it can move in */
+  height: 450px;
+  z-index: 1;
+  overflow: visible;
+}
+
+.magic-book {
+  width: 500px; /* make the book image larger */
+  animation: floatBook 6s ease-in-out infinite;
+  filter: saturate(1.2) brightness(0.9);
+
+}
+
+/* The swirling magical mist */
+
+
+@keyframes sparkleFloat {
+  from { background-position: 0 0; }
+  to { background-position: 100px 100px; }
+}
+
+
+/* Floating animation for the book */
+@keyframes floatBook {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Smooth drifting motion for magical swirl */
+@keyframes swirlMove {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(40px) translateY(-20px) rotate(5deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(-20px) translateY(20px) rotate(-3deg);
+    opacity: 0.8;
+  }
+}
+
+
+/* Genie */
+.genie-img { width:250px; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 0 15px rgba(255,230,100,0.6)); }
+.genie-container { position: fixed; bottom:10px; right:30px; display:flex; flex-direction:column-reverse; align-items:center; z-index:2; }
+.genie-bubble { background: rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.4); backdrop-filter: blur(10px); border-radius:16px; padding:1rem 1.5rem; max-width:260px; text-align:center; font-size:1rem; color:#fff; box-shadow:0 0 20px rgba(255,230,100,0.4); position:relative; margin-bottom:15px; animation: shimmer-bubble 3s infinite alternate; }
+.genie-bubble::after { content:''; position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); border-width:12px 10px 0 10px; border-style:solid; border-color: rgba(255,255,255,0.25) transparent transparent transparent; filter:drop-shadow(0 0 6px rgba(255,230,100,0.6)); }
+.genie-bubble p { margin:0; color:#fff; font-size:1rem; line-height:1.4; text-shadow:0 0 8px rgba(255,230,100,0.8); animation: rotate-lines 4s ease-in-out infinite; }
+@keyframes rotate-lines {0%,100%{text-shadow:0 0 8px rgba(255,230,100,0.7);}50%{text-shadow:0 0 20px rgba(255,255,150,1);} }
+@keyframes shimmer-bubble {0%,100%{box-shadow:0 0 20px rgba(255,255,150,0.2);}50%{box-shadow:0 0 40px rgba(255,255,150,0.5);} }
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
+</style>
+</head>
+<body>
+
+<div class="main-page">
+  <canvas id="starfield"></canvas>
+  <img src="imgs/icon.png" alt="EduGenie Icon" class="top-left-icon" />
+  <h1><span>EduGenie</span></h1>
+  <h2 class="slogan">The classroom companion that works for everyone.</h2>
+  <button class="get-started-button" onclick="window.location.href='index.html'">Get Started</button>
+
+  <div class="left-magic">
+    <img src="imgs/magic_book.png" alt="Floating Magical Book" class="magic-book" />
+    <div class="magic-swirl"></div>
+  </div>
+  
+
+    <link rel="icon" href="imgs/favicon.ico">
+
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Quicksand', sans-serif;
+        height: 100%;
+      }
+
+      .main-page {
+        background: linear-gradient(135deg, #d4b3f7, #cfa1f7);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 60px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      @keyframes stardust {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(50px, 50px);
+        }
+      }
+
+      /* Glassy bubble letters for title */
+      h1 {
+        font-size: 6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 span {
+  font-family: 'Sniglet', cursive;
+  font-weight: 800;
+  font-size: 8rem;
+  letter-spacing: 0.15em;
+  color: transparent;
+  background: linear-gradient(145deg, #ffffffcc, #ffffff55);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
+  text-shadow:
+    0 0 8px rgba(170, 100, 255, 0.7),
+    0 0 18px rgba(170, 100, 255, 0.4),
+    0 0 30px rgba(170, 100, 255, 0.2);
+  position: relative;
+  animation: purplePulse 4s ease-in-out infinite;
+}
+
+h1 span::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    rgba(255, 255, 255, 0.7),
+    transparent 0%
+  );
+  opacity: 0.5;
+  filter: blur(1px);
+  border-radius: 50%;
+  z-index: 1;
+  mix-blend-mode: soft-light;
+}
+
+
+      h1 span::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 60%;
+  height: 25%;
+  background: radial-gradient(circle, rgba(255,255,255,0.7), transparent 70%);
+  opacity: 0.4;
+  filter: blur(6px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+
+
+
+      /* Slogan */
+      .slogan {
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        animation: shimmer-text 3s ease-in-out infinite;
+        z-index: 1;
+      }
+
+      @keyframes shimmer-text {
+        0%,
+        100% {
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+        50% {
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+        }
+      }
+
+      /* Glass Get Started button */
+      .get-started-button {
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 1rem 3rem;
+        font-size: 1.5rem;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+      }
+
+      .get-started-button:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: scale(1.05);
+      }
+
+      /* Genie styles */
+      .genie-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 1;
+      }
+
+      .genie-img {
+        width: 120px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+
+      .speech-bubble {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        margin-top: 10px;
+        max-width: 220px;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #fff;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+
+      
+    </style>
+    
+  </head>
+  <body>
+    <div class="main-page">
+      <h1><span>EduGenie</span></h1>
+      <h2 class="slogan">The classroom companion that works for everyone.</h2>
+      <button
+        class="get-started-button"
+        onclick="window.location.href='index.html'"
+      >
+        Get Started
+      </button>
+
+      <div class="genie-container">
+        <img src="imgs/genie.png" alt="EduGenie Genie" class="genie-img" />
+        <div class="speech-bubble" id="speech-bubble">
+          Hint: Click 'Get Started' to begin your adventure!
         </div>
-            </div>
-        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <script>
-            // adding event listener for enter key 
-            document.addEventListener("keypress", function(e){
-                if(e.key === 'Enter') askGemini();
-            })
+<script>
+const messages=["Stand back! I’m about to sprinkle some learning magic!","I traded my magic carpet for cloud storage.","I’m 80% wisdom, 20% glitter.","Three wishes? Nah, I grant unlimited lesson plans!","Hold my lamp… I’m generating genius!","From rub to rubric — magic meets mastery!"];
+let msgIndex=0;
+const bubbleText=document.getElementById("genie-text");
+setInterval(()=>{ msgIndex=(msgIndex+1)%messages.length; bubbleText.textContent=messages[msgIndex]; },4000);
 
-            // Array to hold the conversation history (Q&A objects)
-            let conversationHistory = [];
-            // Global variable to store the clean artifact content for PDF saving
-            let lastAiOutput = ""; 
-        
-            // Define the delimiter the AI uses to mark the final artifact
-            const ARTIFACT_DELIMITER = ">>>>";
+/* ---------- Starfield with Twinkling Star Shapes ---------- */
+(function(){
+  const canvas=document.getElementById('starfield');
+  const ctx=canvas.getContext('2d');
+  let stars=[],width=0,height=0,dpr=1;
+  const STAR_DENSITY=0.00006;
 
-            // 1. Core Logic: Ask Gemini
-            async function askGemini() {
-                const promptInput = document.getElementById("prompt");
-                const prompt = promptInput.value.trim();
-                
-                if (!prompt) return;
+  function rand(min,max){return Math.random()*(max-min)+min;}
+  function createStars(){
+    stars=[];
+    const count=Math.round(width*height*STAR_DENSITY);
+    for(let i=0;i<count;i++){
+      stars.push({
+        x: Math.random()*width,
+        y: Math.random()*height,
+        r: rand(2,4),
+        alpha: rand(0.3,1),
+        phase: Math.random()*Math.PI*2,
+        speed: rand(0.2,0.7)
+      });
+    }
+  }
 
-                // Display user question immediately
-                appendMessage('user', prompt);
-                
-                // Disable input while loading
-                promptInput.value = ''; 
-                promptInput.disabled = true;
+  function resize(){
+    dpr=window.devicePixelRatio||1;
+    width=window.innerWidth;
+    height=window.innerHeight;
+    canvas.width=width*dpr;
+    canvas.height=height*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    createStars();
+  }
 
-                // Add a temporary 'Loading...' message
-                const loadingMessageId = `loading-${Date.now()}`;
-                appendMessage('bot', 'Thinking...', loadingMessageId); 
-                
-                // Construct the payload for the server
-                const payload = { 
-                    prompt: prompt,
-                    history: conversationHistory 
-                };
-            
-                try {
-                    const res = await fetch("http://localhost:5001/ask", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload)
-                    });
+  function drawStar(s, t){
+    const tw = (Math.sin(s.phase + t*s.speed)+1)/2; // twinkle factor
+    const alpha = s.alpha * tw;
+    const r = s.r;
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.beginPath();
+    for(let i=0;i<5;i++){
+      ctx.lineTo(0, -r);
+      ctx.rotate(Math.PI/5);
+      ctx.lineTo(0, -r/2);
+      ctx.rotate(Math.PI/5);
+    }
+    ctx.closePath();
+    ctx.fillStyle=`rgba(255, 255, 150, ${alpha})`;
+    ctx.fill();
+    ctx.restore();
+  }
 
-                    const data = await res.json();
-                
-                    // Remove the temporary loading message
-                    const loadingElement = document.getElementById(loadingMessageId);
-                    if (loadingElement) loadingElement.remove();
-                    promptInput.disabled = false; // Re-enable input
+  function loop(t){
+    ctx.clearRect(0,0,width,height);
+    for(const s of stars){
+      drawStar(s, t*0.001);
+    }
+    requestAnimationFrame(loop);
+  }
 
-                    if (data.answer) {
-                        let aiAnswer = data.answer;
-                        let contentForPdf = "";
-
-                        // Check for the delimiter to extract the clean artifact content
-                        if (aiAnswer.includes(ARTIFACT_DELIMITER)) {
-                            // Regex to capture everything between the first and last ">>>>"
-                            const match = aiAnswer.match(new RegExp(ARTIFACT_DELIMITER + '([\\s\\S]*?)' + ARTIFACT_DELIMITER));
-                            
-                            if (match && match[1]) {
-                                // Extracted content (without delimiters) goes to PDF variable
-                                contentForPdf = match[1].trim(); 
-                            }
-                        } 
-                        
-                        // Update lastAiOutput ONLY if a clean artifact was found
-                        if (contentForPdf.length > 0) {
-                            lastAiOutput = contentForPdf;
-                        }
-                        
-                        // Store the completed turn in history for the next turn
-                        conversationHistory.push({ role: 'user', text: prompt }); 
-                        conversationHistory.push({ role: 'model', text: aiAnswer });
-                        
-                        // Display the final AI answer (full text including delimiters)
-                        appendMessage('bot', aiAnswer); 
-                        document.getElementById('prompt').focus()
-                    } else {
-                        const errorMessage = data.error || "An unknown error occurred.";
-                        appendMessage('bot', `**Error:** ${errorMessage}`);
-                        alert(`API Error: ${errorMessage}`, 'error', 5000); 
-                    }
-
-            } catch (error) {
-                // Handle network errors
-                const loadingElement = document.getElementById(loadingMessageId);
-                if (loadingElement) loadingElement.remove();
-                promptInput.disabled = false; // Re-enable input
-
-                const networkErrorMsg = "Network Error: Could not connect to the server. Ensure the server is running on http://localhost:5001.";
-                appendMessage('bot', networkErrorMsg);
-                alert(networkErrorMsg, 'error', 7000);
-                console.error(error);
-            }
-        }
-
-        // 2. Helper: Append message to the conversation area
-        function appendMessage(role, content, id = null) {
-            const conversationArea = document.getElementById("conversationArea");
-            
-            const messageDiv = document.createElement('div');
-            // Use 'user' or 'bot' which match the CSS classes
-            const displayRole = role === 'user' ? 'user' : 'bot'; 
-            messageDiv.className = `message ${displayRole}`;
-            if (id) messageDiv.id = id;
-
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.className = 'bubble';
-
-            if (displayRole === 'user') {
-                bubbleDiv.textContent = content;
-            } else { 
-                // AI content uses marked.parse for Markdown to HTML
-                const formattedHTML = marked.parse(content);
-                bubbleDiv.innerHTML = formattedHTML;
-            }
-            
-            messageDiv.appendChild(bubbleDiv);
-            conversationArea.appendChild(messageDiv);
-            
-            // Scroll to the bottom
-            conversationArea.scrollTop = conversationArea.scrollHeight;
-        }
-
-
-        // 3. Clear Conversation Function
-        function clearConversation() {
-            
-            // Clear the JavaScript array and the last output variable
-            conversationHistory = []; 
-            lastAiOutput = ""; 
-            
-            // Clear the chat box completely and reset to the initial hardcoded state
-            const conversationArea = document.getElementById("conversationArea");
-            
-            // Reset to the initial hardcoded message
-            conversationArea.innerHTML = `
-                <div class="message bot">
-                    <div class="bubble">Hello, what do you want to plan today? I can create general outlines, slideshows, or even quizzes.</div>
-                </div>
-            `; 
-            alert("Conversation cleared!", 'info');
-        }
-
-        // 4. Save Final Output Function
-        function saveFinalOutput() {
-            // 1. Check if there is any substantial content to save
-            if (!lastAiOutput || lastAiOutput.trim().length < 50) {
-                alert('Please generate a full plan or quiz before attempting to save the final output.', 'error');
-                return;
-            }
-
-            const filename = `Lesson_Output.txt`;
-            const fileContent = lastAiOutput; // lastAiOutput is already clean Markdown text
-            const mimeType = 'text/plain';
-
-            const blob = new Blob([fileContent], { type: mimeType });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            alert(`Final output saved as ${filename}!`, 'info');
-            return;
-        }
-
-    </script>
-
-    </body>
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
 </html>
