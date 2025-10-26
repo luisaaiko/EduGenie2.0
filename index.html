@@ -365,6 +365,7 @@ setInterval(()=>{ msgIndex=(msgIndex+1)%messages.length; bubbleText.textContent=
 (function(){
   const canvas=document.getElementById('starfield');
   const ctx=canvas.getContext('2d');
+  const chatContainer = document.body
   let stars=[],width=0,height=0,dpr=1;
   const STAR_DENSITY=0.00006;
 
@@ -384,13 +385,13 @@ setInterval(()=>{ msgIndex=(msgIndex+1)%messages.length; bubbleText.textContent=
     }
   }
 
-  function resize(){
-    dpr=window.devicePixelRatio||1;
-    width=window.innerWidth;
-    height=window.innerHeight;
-    canvas.width=width*dpr;
-    canvas.height=height*dpr;
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+  function resize() {
+    const rect = chatContainer.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     createStars();
   }
 

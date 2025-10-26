@@ -22,15 +22,13 @@
         
     </head>
     <body>
-        <div class="main-page">
-            <canvas id="starfield"></canvas>
-        </div>
         <form>
             <div class = "home-page">
-                <a href = "index.html"><button type = "button">Go Back to Main Page</button></a>
+                <button type = "button" onclick = "window.location.href = 'index.html'">Go Back to Main Page</button>
             </div>
         </form>
         <div class="chat-container">
+            <canvas id="starfield"></canvas>
             <div class="chat-header">EduGenie</div>
             <div id="controls" style="padding: 10px 25px 0; display: flex; justify-content: flex-end; gap: 10px;">
                 <button onclick="saveFinalOutput()" style="font-size: 14px; padding: 5px 10px;">Save as txt</button>
@@ -40,7 +38,7 @@
             <div class="chat-box" id="conversationArea">
                     
                 <div class="message bot">
-                    <div class="bubble">Hello, I'm EduGenie!<img src="imgs/genie.png" alt="Genie" width = "25px" height = "auto"><br> Your smart companion for teaching and learning. </div>
+                    <div class="bubble">Hello, I'm EduGenie!<img src="imgs/genieshadow.png" alt="Genie" width = "35px" height = "auto"><br>Your smart companion for teaching and learning. </div>
                 </div>
                 <div class = "message bot">
                     <div class = "bubble">I help teachers create lesson plans, organize study materials, and craft engaging classroom activities. For students, I provide clear explanations, study guides, and interactive learning support. Think of me as your genie for education: I make planning, learning, and teaching easier, faster, and more fun!</div>

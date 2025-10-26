@@ -10,14 +10,28 @@ html, body {
   flex-direction: column;
 }
 
+<<<<<<< HEAD
+=======
+body {
+  background-color: #d99ed4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0px;
+}
+>>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
 
 #starfield {
-  position: fixed;
+  position: absolute; /*keeps starfield contained*/
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
   z-index: 0;
+=======
+>>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
   pointer-events: none;
 }
 
@@ -26,12 +40,13 @@ html, body {
 .home-page button {
   position: absolute;
   float: top left;
+  z-index: 100;
   top: 6.5%;
   left: 6.5%;
   color: white;
   background-color: #4b0b79;
   border-radius: 40px;
-  border: 1px #701769 solid;
+  border: 1px #4b0b79 solid;
   font-size: 15px;
   padding: 12px;
   cursor: pointer;
@@ -45,8 +60,18 @@ html, body {
 }
 
 .chat-container {
+<<<<<<< HEAD
   position: relative;
   z-index: 1;
+=======
+  width: 90%;
+  height: 90%;
+  background: #4b0b79;
+  position: relative;
+  overflow: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+>>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -71,10 +96,11 @@ html, body {
   background-position: center;
   background-size: 60%;
   text-align: center;
-  text-shadow: 1px 1px #ffffff;
+  text-shadow: -1px 2px 2px #ffffff;
   padding: 20px;
   font-size: 1.5em;
-  font-weight: 600;
+  font-weight: 1000;
+  font-size: 30px;
 }
 
 
@@ -150,6 +176,8 @@ html, body {
   border: 1px #701769 solid;
   padding: 10px;
   cursor: pointer;
+  box-shadow: 0 0 10px 0.5px rgb(238, 238, 216); /* purple glow */
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 #controls button:hover {
@@ -162,9 +190,10 @@ select {
   font-size: 14px;
 }
 
-.bubble img {
+.bubble img { /* genie emoji*/
   vertical-align: middle;
   margin-left: 5px; /* space between text and image */
+<<<<<<< HEAD
 }
 
 
@@ -210,3 +239,8 @@ select {
   background: rgba(166,108,255,0.85);
   box-shadow: 0 0 16px rgba(166,108,255,0.6), 0 0 30px rgba(166,108,255,0.35);
 }
+=======
+  border-radius: 10px;
+
+}
+>>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
