@@ -117,6 +117,9 @@ h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:10rem; let
 }
 
 
+
+
+
 /* Container on the left side */
 .left-magic {
   position: absolute;
@@ -238,6 +241,43 @@ h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:10rem; let
   to { opacity: 1; transform: translateY(0); }
 }
 
+.modal-content a {
+  color: #a879ff; /* purple shade */
+  text-decoration: none; /* removes underline */
+  font-weight: bold;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.modal-content a:hover {
+  color: #d9b3ff; /* lighter on hover */
+  text-shadow: 0 0 10px rgba(200, 150, 255, 0.8);
+}
+
+.resources-button {
+  position: absolute;
+  left: 50%;
+  bottom: 200px; /* appears below Get Started */
+  transform: translateX(-50%);
+  background: rgba(140, 80, 255, 0.9);
+  border: 2px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  padding: 1rem 3rem;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1;
+  box-shadow: 0 0 20px rgba(140,80,255,0.7), 0 0 40px rgba(140,80,255,0.4);
+}
+
+.resources-button:hover {
+  background: rgba(170,110,255,1);
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 0 30px rgba(186,128,255,0.9), 0 0 60px rgba(166,108,255,0.6);
+}
+
+
 
 </style>
 </head>
@@ -247,8 +287,15 @@ h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:10rem; let
     <canvas id="starfield"></canvas>
     <h1><span>EduGenie</span></h1>
     <h2 class="slogan" id="typed-text"></h2>
+    
+<!-- Buttons -->
+<button class="get-started-button" onclick="window.location.href='chatPage.html'">Get Started</button>
+<button class="resources-button" onclick="window.location.href='resources.html'">Resources</button>
+
   
-    <button class="get-started-button" onclick="window.location.href='chatPage.html'">Get Started</button>
+    
+    
+    
   
     <!-- 🔹 Top-left icon that opens modal -->
     <img src="imgs/icon.png" alt="EduGenie Icon" class="top-left-icon" id="logo-button" />
@@ -261,7 +308,7 @@ h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:10rem; let
     <h2>About EduGenie</h2>
 
     <h3>✨ Created By</h3>
-    <p>Luisa Ribeiro, Mia Masmela, Khushi Thakkar, and Zoe Schlesinger</p>
+    <p>Khushi Thakkar, Luisa Ribeiro, Mia Masmela, and Zoe Schlesinger</p>
   
     <h3>🎓 What It Does</h3>
     <p>EduGenie is a magical classroom companion designed to empower teachers, inspire creativity, and make lesson planning easier than ever. 
@@ -285,10 +332,10 @@ h1 span { font-family: 'Sniglet', cursive; font-weight:800; font-size:10rem; let
       </p>
     <h3>📜 Our LinkedIn's</h3>
     <p>
-      Luisa Ribeiro: <a href="https://www.linkedin.com/in/luisaaikoribeiro/">info@edugenie.com</a><br>
-      Mia Masmela: <a href="https://www.linkedin.com/in/mia-masmela/">info@edugenie.com</a><br>
-      Khushi Thakkar: <a href="https://www.linkedin.com/in/khushi-j-thakkar/">info@edugenie.com</a><br>
-      Zoe Schlesinger: <a href="https://www.linkedin.com/in/schlesinger-zoe/">info@edugenie.com</a><br>
+      Khushi Thakkar: <a href="https://www.linkedin.com/in/khushi-j-thakkar/">https://www.linkedin.com/in/khushi-j-thakkar/</a><br>
+      Luisa Ribeiro: <a href="https://www.linkedin.com/in/luisaaikoribeiro/">https://www.linkedin.com/in/luisaaikoribeiro/</a><br>
+      Mia Masmela: <a href="https://www.linkedin.com/in/mia-masmela/">https://www.linkedin.com/in/mia-masmela/</a><br>
+      Zoe Schlesinger: <a href="https://www.linkedin.com/in/schlesinger-zoe/">https://www.linkedin.com/in/schlesinger-zoe/</a><br>
     </p>
   </div>
 </div>
@@ -394,6 +441,8 @@ function typeWriter() {
 }
 
 window.onload = typeWriter;
+
+
 
 // Modal logic
 const modal = document.getElementById("info-modal");
