@@ -10,17 +10,6 @@ html, body {
   flex-direction: column;
 }
 
-<<<<<<< HEAD
-=======
-body {
-  background-color: #d99ed4;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0px;
-}
->>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
 
 #starfield {
   position: absolute; /*keeps starfield contained*/
@@ -28,10 +17,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-<<<<<<< HEAD
   z-index: 0;
-=======
->>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
   pointer-events: none;
 }
 
@@ -39,20 +25,18 @@ body {
 
 .home-page button {
   position: absolute;
-  float: top left;
   z-index: 100;
-  top: 6.5%;
-  left: 6.5%;
+  top: 5%;
+  left: 5%;
   color: white;
   background-color: #4b0b79;
   border-radius: 40px;
   border: 1px #4b0b79 solid;
-  font-size: 15px;
-  padding: 12px;
+  font-size: 14px;
+  padding: 8px 16px;
   cursor: pointer;
-  box-shadow: 0 0 15px 4px rgb(238, 238, 216); /* purple glow */
-  transition: box-shadow 0.3s ease-in-out;
-
+  box-shadow: 0 0 10px 2px rgb(238, 238, 216);
+  transition: all 0.3s ease-in-out;
 }
 
 .home-page button:hover {
@@ -60,28 +44,17 @@ body {
 }
 
 .chat-container {
-<<<<<<< HEAD
   position: relative;
   z-index: 1;
-=======
-  width: 90%;
-  height: 90%;
-  background: #4b0b79;
-  position: relative;
-  overflow: none;
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
->>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh;              /* full viewport height */
   justify-content: space-between;
-  padding-top: 100px; /* pushes below header */
+  padding-top: 100px;         /* pushes chat below header */
 }
 
-
 .chat-box {
-  height: 90vh; /* was probably 70–80vh */
+  height: 80vh;               /* taller area for messages */
   overflow-y: auto;
   padding: 20px;
   display: flex;
@@ -90,18 +63,16 @@ body {
 }
 
 
-
 .chat-header {
-  background-image: url("imgs/stars.jpg");
-  background-position: center;
-  background-size: 60%;
+  font-family: 'Sniglet', cursive;
+  font-size: 2rem;
+  color: white;
   text-align: center;
-  text-shadow: -1px 2px 2px #ffffff;
-  padding: 20px;
-  font-size: 1.5em;
-  font-weight: 1000;
-  font-size: 30px;
+  margin-top: 40px; /* instead of being stuck low */
+  margin-bottom: 10px;
 }
+
+
 
 
 .message {
@@ -193,7 +164,6 @@ select {
 .bubble img { /* genie emoji*/
   vertical-align: middle;
   margin-left: 5px; /* space between text and image */
-<<<<<<< HEAD
 }
 
 
@@ -239,8 +209,3 @@ select {
   background: rgba(166,108,255,0.85);
   box-shadow: 0 0 16px rgba(166,108,255,0.6), 0 0 30px rgba(166,108,255,0.35);
 }
-=======
-  border-radius: 10px;
-
-}
->>>>>>> 6d9ff958d737a7038411216e7f730b8e610c27cf
