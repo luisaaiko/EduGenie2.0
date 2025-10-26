@@ -13,7 +13,7 @@ body {
 }
 
 #starfield {
-  position: fixed;
+  position: absolute; /*keeps starfield contained*/
   top: 0;
   left: 0;
   width: 100%;
@@ -24,12 +24,13 @@ body {
 .home-page button {
   position: absolute;
   float: top left;
+  z-index: 100;
   top: 6.5%;
   left: 6.5%;
   color: white;
   background-color: #4b0b79;
   border-radius: 40px;
-  border: 1px #701769 solid;
+  border: 1px #4b0b79 solid;
   font-size: 15px;
   padding: 12px;
   cursor: pointer;
@@ -62,10 +63,11 @@ body {
   background-position: center;
   background-size: 60%;
   text-align: center;
-  text-shadow: 1px 1px #ffffff;
+  text-shadow: -1px 2px 2px #ffffff;
   padding: 20px;
   font-size: 1.5em;
-  font-weight: 600;
+  font-weight: 1000;
+  font-size: 30px;
 }
 
 .chat-box {
@@ -146,6 +148,8 @@ body {
   border: 1px #701769 solid;
   padding: 10px;
   cursor: pointer;
+  box-shadow: 0 0 10px 0.5px rgb(238, 238, 216); /* purple glow */
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 #controls button:hover {
@@ -158,7 +162,9 @@ select {
   font-size: 14px;
 }
 
-.bubble img {
+.bubble img { /* genie emoji*/
   vertical-align: middle;
   margin-left: 5px; /* space between text and image */
+  border-radius: 10px;
+
 }
