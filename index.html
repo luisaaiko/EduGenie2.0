@@ -20,7 +20,7 @@
             <div class="chat-header">eduGenie</div>
 
             <div id="controls" style="padding: 10px 20px 0; display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="saveConversationAsPdf()" style="font-size: 14px; padding: 5px 10px;">Save as PDF</button>
+                <button onclick="saveFinalOutput()" style="font-size: 14px; padding: 5px 10px;">Save as txt</button>
                 <button onclick="clearConversation()" style="font-size: 14px; padding: 5px 10px;">Clear Conversation</button>
             </div>
             
@@ -43,87 +43,94 @@
             </div>
         </div>
 
-    <script>
-        // Array to hold the conversation history (Q&A objects)
-        // Stored as { role: 'user' | 'model', text: '...' } for server compatibility
-        let conversationHistory = [];
-        const MESSAGE_BOX_CONTAINER_ID = "messageBoxContainer";
+        <script>
+            // Array to hold the conversation history (Q&A objects)
+            let conversationHistory = [];
+            // Global variable to store the clean artifact content for PDF saving
+            let lastAiOutput = ""; 
+        
+            // Define the delimiter the AI uses to mark the final artifact
+            const ARTIFACT_DELIMITER = ">>>>";
 
-        // --- Custom Message Box for Alerts/Confirms ---
-        // (Replaces window.alert and window.confirm for better UI/compatibility)
-        function showMessageBox(message, type = 'info', duration = 3000) {
-            const container = document.getElementById(MESSAGE_BOX_CONTAINER_ID);
-            const box = document.createElement('div');
-            box.className = `message-box ${type}`;
-            box.textContent = message;
-            
-            container.appendChild(box);
-
-            setTimeout(() => {
-                box.remove();
-            }, duration);
-        }
-
-        // 1. Core Logic: Ask Gemini
-        async function askGemini() {
-            const promptInput = document.getElementById("prompt");
-            const prompt = promptInput.value.trim();
-            
-            if (!prompt) return;
-
-            // 1a. Display user question immediately
-            appendMessage('user', prompt);
-            
-            // NOTE: We DO NOT push the user message to conversationHistory here. 
-            // The server will add this current prompt as the final turn. 
-            // We only send COMPLETED turns in the 'history' payload.
-
-            promptInput.value = ''; // Clear input field
-            promptInput.disabled = true;
-
-            // 1b. Add a temporary 'Loading...' message
-            const loadingMessageId = `loading-${Date.now()}`;
-            appendMessage('bot', 'Thinking...', loadingMessageId); 
-            
-            try {
-                // IMPORTANT: Send the full history array (containing only completed turns) 
-                // along with the new prompt.
-                const res = await fetch("http://localhost:5001/ask", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt, history: conversationHistory })
-                });
-
-                const data = await res.json();
+            // 1. Core Logic: Ask Gemini
+            async function askGemini() {
+                const promptInput = document.getElementById("prompt");
+                const prompt = promptInput.value.trim();
                 
-                // 1c. Remove the temporary loading message
-                const loadingElement = document.getElementById(loadingMessageId);
-                if (loadingElement) loadingElement.remove();
-                promptInput.disabled = false;
+                if (!prompt) return;
 
-                if (data.answer) {
-                    // Only upon success, we record the completed turn (User Q + Model A)
-                    // into the client-side history for the NEXT request.
-                    conversationHistory.push({ role: 'user', text: prompt }); // Correctly push user turn
-                    conversationHistory.push({ role: 'model', text: data.answer }); // Correctly push model turn
+                // Display user question immediately
+                appendMessage('user', prompt);
+                
+                // Disable input while loading
+                promptInput.value = ''; 
+                promptInput.disabled = true;
 
-                    // Display the final AI answer
-                    appendMessage('bot', data.answer); 
-                } else {
-                    const errorMessage = data.error || "An unknown error occurred.";
-                    appendMessage('bot', `**Error:** ${errorMessage}`);
-                    showMessageBox(`API Error: ${errorMessage}`, 'confirm', 5000); 
-                }
+                // Add a temporary 'Loading...' message
+                const loadingMessageId = `loading-${Date.now()}`;
+                appendMessage('bot', 'Thinking...', loadingMessageId); 
+                
+                // Construct the payload for the server
+                const payload = { 
+                    prompt: prompt,
+                    history: conversationHistory 
+                };
+            
+                try {
+                    const res = await fetch("http://localhost:5001/ask", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+                
+                    // Remove the temporary loading message
+                    const loadingElement = document.getElementById(loadingMessageId);
+                    if (loadingElement) loadingElement.remove();
+                    promptInput.disabled = false; // Re-enable input
+
+                    if (data.answer) {
+                        let aiAnswer = data.answer;
+                        let contentForPdf = "";
+
+                        // Check for the delimiter to extract the clean artifact content
+                        if (aiAnswer.includes(ARTIFACT_DELIMITER)) {
+                            // Regex to capture everything between the first and last ">>>>"
+                            const match = aiAnswer.match(new RegExp(ARTIFACT_DELIMITER + '([\\s\\S]*?)' + ARTIFACT_DELIMITER));
+                            
+                            if (match && match[1]) {
+                                // Extracted content (without delimiters) goes to PDF variable
+                                contentForPdf = match[1].trim(); 
+                            }
+                        } 
+                        
+                        // Update lastAiOutput ONLY if a clean artifact was found
+                        if (contentForPdf.length > 0) {
+                            lastAiOutput = contentForPdf;
+                        }
+                        
+                        // Store the completed turn in history for the next turn
+                        conversationHistory.push({ role: 'user', text: prompt }); 
+                        conversationHistory.push({ role: 'model', text: aiAnswer });
+                        
+                        // Display the final AI answer (full text including delimiters)
+                        appendMessage('bot', aiAnswer); 
+                    } else {
+                        const errorMessage = data.error || "An unknown error occurred.";
+                        appendMessage('bot', `**Error:** ${errorMessage}`);
+                        alert(`API Error: ${errorMessage}`, 'error', 5000); 
+                    }
 
             } catch (error) {
-                // 1d. Handle network errors
+                // Handle network errors
                 const loadingElement = document.getElementById(loadingMessageId);
                 if (loadingElement) loadingElement.remove();
-                promptInput.disabled = false;
+                promptInput.disabled = false; // Re-enable input
 
                 const networkErrorMsg = "Network Error: Could not connect to the server. Ensure the server is running on http://localhost:5001.";
                 appendMessage('bot', networkErrorMsg);
-                showMessageBox(networkErrorMsg, 'confirm', 7000);
+                alert(networkErrorMsg, 'error', 7000);
                 console.error(error);
             }
         }
@@ -133,6 +140,7 @@
             const conversationArea = document.getElementById("conversationArea");
             
             const messageDiv = document.createElement('div');
+            // Use 'user' or 'bot' which match the CSS classes
             const displayRole = role === 'user' ? 'user' : 'bot'; 
             messageDiv.className = `message ${displayRole}`;
             if (id) messageDiv.id = id;
@@ -143,6 +151,7 @@
             if (displayRole === 'user') {
                 bubbleDiv.textContent = content;
             } else { 
+                // AI content uses marked.parse for Markdown to HTML
                 const formattedHTML = marked.parse(content);
                 bubbleDiv.innerHTML = formattedHTML;
             }
@@ -157,49 +166,48 @@
 
         // 3. Clear Conversation Function
         function clearConversation() {
-            // Using window.confirm as a temporary workaround for confirmation dialogs
-            const isConfirmed = window.confirm("Are you sure you want to clear the entire conversation history?");
             
-            if (!isConfirmed) {
-                return;
-            }
+            // Clear the JavaScript array and the last output variable
+            conversationHistory = []; 
+            lastAiOutput = ""; 
             
-            conversationHistory = []; // Clear the JavaScript array
-            
-            // Clear the chat box completely and reset to the initial state
+            // Clear the chat box completely and reset to the initial hardcoded state
             const conversationArea = document.getElementById("conversationArea");
+            
+            // Reset to the initial hardcoded message
             conversationArea.innerHTML = `
                 <div class="message bot">
-                    <div class="bubble">Hi there! I'm your lesson planning assistant. To get started, what is the **topic or subject** you would like to work on?</div>
+                    <div class="bubble">Hello, what do you want to plan today? I can create general outlines, slideshows, or even quizzes.</div>
                 </div>
             `; 
-            showMessageBox("Conversation cleared!", 'info');
+            alert("Conversation cleared!", 'info');
         }
 
-
-        // 4. Save as PDF Function (Uses html2pdf.js)
-        function saveConversationAsPdf() {
-            const conversationArea = document.getElementById('conversationArea');
-
-            if (conversationHistory.length === 0) {
-                showMessageBox('Please start a conversation before saving!', 'confirm');
+        // 4. Save Final Output Function
+        function saveFinalOutput() {
+            // 1. Check if there is any substantial content to save
+            if (!lastAiOutput || lastAiOutput.trim().length < 50) {
+                alert('Please generate a full plan or quiz before attempting to save the final output.', 'error');
                 return;
             }
 
-            // Configuration for the PDF generation
-            const pdfOptions = {
-                margin: 10,
-                filename: 'EduGenie_Chat_Session.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, logging: false, scrollY: 0 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            const filename = `Lesson_Output.txt`;
+            const fileContent = lastAiOutput; // lastAiOutput is already clean Markdown text
+            const mimeType = 'text/plain';
 
-            // Use html2pdf to generate and download the PDF
-            showMessageBox('Generating PDF...', 'info', 2000);
-            html2pdf().set(pdfOptions).from(conversationArea).save();
+            const blob = new Blob([fileContent], { type: mimeType });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert(`Final output saved as ${filename}!`, 'info');
+            return;
         }
 
     </script>
+
     </body>
 </html>
