@@ -12,6 +12,23 @@ body {
   margin: 0px;
 }
 
+.home-page button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #edd2eb;
+  border-radius: 40px;
+  border: 1px #701769 solid;
+  font-size: 15px;
+  padding: 12px;
+  cursor: pointer;
+  float: top left;
+}
+
+.home-page button:hover {
+  background: #d99ed4;
+}
+
 .chat-container {
   width: 1000px;
   height: 600px;
@@ -30,8 +47,9 @@ body {
   background-position: center;
   background-size: 60%;
   text-align: center;
-  padding: 15px;
-  font-size: 1.2em;
+  text-shadow: 1px 1px #ffffff;
+  padding: 20px;
+  font-size: 1.5em;
   font-weight: 600;
 }
 
@@ -59,10 +77,9 @@ body {
 }
 
 .message.bot .bubble {
-  background: #e5d9f0;
+  background: #edd2eb;
   color: #000;
   border-bottom-left-radius: 0;
-  background-image: linear-gradient(to top, rgb(175, 106, 175), #e5d9f0);
 }
 
 .message.user .bubble {
