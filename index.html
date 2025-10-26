@@ -33,7 +33,7 @@
                     <div class = "bubble">I help teachers create lesson plans, organize study materials, and craft engaging classroom activities. For students, I provide clear explanations, study guides, and interactive learning support. Think of me as your genie for education: I make planning, learning, and teaching easier, faster, and more fun!</div>
                 </div>
                 <div class="message bot">
-                    <div class="bubble">You can ask me questions here anytime!</div>
+                    <div class="bubble">What would you like to create today? I can make an outline for a lesson, create a quiz, plan out slides, or anything else you wish for!</div>
                 </div>
                 
             </div>
@@ -45,13 +45,18 @@
                 <option value="quiz">Quiz Questions</option>
                 <option value="slides">Presentation Slides Outline</option>
             </select> -->
-            <input type="text" id="prompt" placeholder="Ask me anything… your wish for knowledge is my command! ✨" />
+            <input type="text" autofocus id="prompt" placeholder="Ask me anything… your wish for knowledge is my command! ✨" />
             <button onclick="askGemini()">Send</button>
         </div>
             </div>
         </div>
 
         <script>
+            // adding event listener for enter key 
+            document.addEventListener("keypress", function(e){
+                if(e.key === 'Enter') askGemini();
+            })
+
             // Array to hold the conversation history (Q&A objects)
             let conversationHistory = [];
             // Global variable to store the clean artifact content for PDF saving
@@ -124,6 +129,7 @@
                         
                         // Display the final AI answer (full text including delimiters)
                         appendMessage('bot', aiAnswer); 
+                        document.getElementById('prompt').focus()
                     } else {
                         const errorMessage = data.error || "An unknown error occurred.";
                         appendMessage('bot', `**Error:** ${errorMessage}`);
