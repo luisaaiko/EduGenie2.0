@@ -26,7 +26,10 @@ body {
 }
 
 .chat-header {
-  background: #d99ed4;
+  background-image: 
+    url('imgs/stars.png');
+    linear-gradient(to bottom, white, #d99ed4);
+  background-size: 10px;
   color: black;
   text-align: center;
   padding: 15px;
@@ -62,7 +65,7 @@ body {
   background: #e5d9f0;
   color: #000;
   border-bottom-left-radius: 0;
-  background-image: linear-gradient(to top, rgb(175, 106, 175), #e5d9f0)
+  background-image: linear-gradient(to top, rgb(175, 106, 175), #e5d9f0);
 }
 
 .message.user .bubble {
