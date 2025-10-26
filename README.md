@@ -1,5 +1,5 @@
 ✨ Created By:
-  Luisa Ribeiro, Mia Masmela, Khushi Thakkar, and Zoe Schlesinger
+  Khushi Thakkar, Luisa Ribeiro, Mia Masmela, and Zoe Schlesinger
   
 🎓 What It Does: 
   EduGenie is a magical classroom companion designed to empower teachers, inspire creativity, and make lesson planning easier than ever. Think of it as your personal genie — but instead of granting wishes, it grants well-crafted lesson plans, interactive activities, and time-saving teaching materials.
@@ -12,7 +12,7 @@
   Our mission is to help people learn and teach more effectively by bringing AI-powered creativity into the classroom. We faced our own hurdles while building EduGenie — from connecting the frontend and backend to merging files and debugging endless errors — but we kept pushing ourselves, trying new ideas, and learning as we went. In the end, we’re proud of what we built and how far we’ve come.
 
 📜 Our LinkedIn's:
+  Khushi Thakkar: https://www.linkedin.com/in/khushi-j-thakkar/.
   Luisa Ribeiro: https://www.linkedin.com/in/luisaaikoribeiro/.
   Mia Masmela: https://www.linkedin.com/in/mia-masmela/.
-  Khushi Thakkar: https://www.linkedin.com/in/khushi-j-thakkar/.
   Zoe Schlesinger: https://www.linkedin.com/in/schlesinger-zoe/.
