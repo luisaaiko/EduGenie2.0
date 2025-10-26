@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>EduGenie</title>
+        <link rel = "stylesheet" href = "chatPage.css">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        <link rel="icon" href="imgs/favicon.ico">
+        
+        </head>
+    <body>
+        <div class="chat-container">
+            <div class="chat-header">EduGenie</div>
+            <div id="controls" style="padding: 10px 20px 0; display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="saveFinalOutput()" style="font-size: 14px; padding: 5px 10px;">Save as txt</button>
+                <button onclick="clearConversation()" style="font-size: 14px; padding: 5px 10px;">Clear Conversation</button>
+            </div>
+            
+            <div class="chat-box" id="conversationArea">
+                    
+                <div class="message bot">
+                    <div class="bubble">Hello, I'm EduGenie!<img src="imgs/genie.png" alt="Genie" width = "25px" height = "auto"><br> Your smart companion for teaching and learning. </div>
+                </div>
+                <div class = "message bot">
+                    <div class = "bubble">I help teachers create lesson plans, organize study materials, and craft engaging classroom activities. For students, I provide clear explanations, study guides, and interactive learning support. Think of me as your genie for education: I make planning, learning, and teaching easier, faster, and more fun!</div>
+                </div>
+                <div class="message bot">
+                    <div class="bubble">What would you like to create today? I can make an outline for a lesson, create a quiz, plan out slides, or anything else you wish for!</div>
+                </div>
+                
+            </div>
+
+            <div class="chat-input">
+              <!-- <select id="contentType" style="padding: 8px; margin-right: 10px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="general">General Question</option>
+                <option value="lessonPlan">Lesson Plan</option>
+                <option value="quiz">Quiz Questions</option>
+                <option value="slides">Presentation Slides Outline</option>
+            </select> -->
+            <input type="text" autofocus id="prompt" placeholder="Ask me anything… your wish for knowledge is my command! ✨" />
+            <button onclick="askGemini()">Send</button>
+        </div>
+            </div>
+        </div>
+
+        <script>
+            // adding event listener for enter key 
+            document.addEventListener("keypress", function(e){
+                if(e.key === 'Enter') askGemini();
+            })
+
+            // Array to hold the conversation history (Q&A objects)
+            let conversationHistory = [];
+            // Global variable to store the clean artifact content for PDF saving
+            let lastAiOutput = ""; 
+        
+            // Define the delimiter the AI uses to mark the final artifact
+            const ARTIFACT_DELIMITER = ">>>>";
+
+            // 1. Core Logic: Ask Gemini
+            async function askGemini() {
+                const promptInput = document.getElementById("prompt");
+                const prompt = promptInput.value.trim();
+                
+                if (!prompt) return;
+
+                // Display user question immediately
+                appendMessage('user', prompt);
+                
+                // Disable input while loading
+                promptInput.value = ''; 
+                promptInput.disabled = true;
+
+                // Add a temporary 'Loading...' message
+                const loadingMessageId = `loading-${Date.now()}`;
+                appendMessage('bot', 'Thinking...', loadingMessageId); 
+                
+                // Construct the payload for the server
+                const payload = { 
+                    prompt: prompt,
+                    history: conversationHistory 
+                };
+            
+                try {
+                    const res = await fetch("http://localhost:5001/ask", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+                
+                    // Remove the temporary loading message
+                    const loadingElement = document.getElementById(loadingMessageId);
+                    if (loadingElement) loadingElement.remove();
+                    promptInput.disabled = false; // Re-enable input
+
+                    if (data.answer) {
+                        let aiAnswer = data.answer;
+                        let contentForPdf = "";
+
+                        // Check for the delimiter to extract the clean artifact content
+                        if (aiAnswer.includes(ARTIFACT_DELIMITER)) {
+                            // Regex to capture everything between the first and last ">>>>"
+                            const match = aiAnswer.match(new RegExp(ARTIFACT_DELIMITER + '([\\s\\S]*?)' + ARTIFACT_DELIMITER));
+                            
+                            if (match && match[1]) {
+                                // Extracted content (without delimiters) goes to PDF variable
+                                contentForPdf = match[1].trim(); 
+                            }
+                        } 
+                        
+                        // Update lastAiOutput ONLY if a clean artifact was found
+                        if (contentForPdf.length > 0) {
+                            lastAiOutput = contentForPdf;
+                        }
+                        
+                        // Store the completed turn in history for the next turn
+                        conversationHistory.push({ role: 'user', text: prompt }); 
+                        conversationHistory.push({ role: 'model', text: aiAnswer });
+                        
+                        // Display the final AI answer (full text including delimiters)
+                        appendMessage('bot', aiAnswer); 
+                        document.getElementById('prompt').focus()
+                    } else {
+                        const errorMessage = data.error || "An unknown error occurred.";
+                        appendMessage('bot', `**Error:** ${errorMessage}`);
+                        alert(`API Error: ${errorMessage}`, 'error', 5000); 
+                    }
+
+            } catch (error) {
+                // Handle network errors
+                const loadingElement = document.getElementById(loadingMessageId);
+                if (loadingElement) loadingElement.remove();
+                promptInput.disabled = false; // Re-enable input
+
+                const networkErrorMsg = "Network Error: Could not connect to the server. Ensure the server is running on http://localhost:5001.";
+                appendMessage('bot', networkErrorMsg);
+                alert(networkErrorMsg, 'error', 7000);
+                console.error(error);
+            }
+        }
+
+        // 2. Helper: Append message to the conversation area
+        function appendMessage(role, content, id = null) {
+            const conversationArea = document.getElementById("conversationArea");
+            
+            const messageDiv = document.createElement('div');
+            // Use 'user' or 'bot' which match the CSS classes
+            const displayRole = role === 'user' ? 'user' : 'bot'; 
+            messageDiv.className = `message ${displayRole}`;
+            if (id) messageDiv.id = id;
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'bubble';
+
+            if (displayRole === 'user') {
+                bubbleDiv.textContent = content;
+            } else { 
+                // AI content uses marked.parse for Markdown to HTML
+                const formattedHTML = marked.parse(content);
+                bubbleDiv.innerHTML = formattedHTML;
+            }
+            
+            messageDiv.appendChild(bubbleDiv);
+            conversationArea.appendChild(messageDiv);
+            
+            // Scroll to the bottom
+            conversationArea.scrollTop = conversationArea.scrollHeight;
+        }
+
+
+        // 3. Clear Conversation Function
+        function clearConversation() {
+            
+            // Clear the JavaScript array and the last output variable
+            conversationHistory = []; 
+            lastAiOutput = ""; 
+            
+            // Clear the chat box completely and reset to the initial hardcoded state
+            const conversationArea = document.getElementById("conversationArea");
+            
+            // Reset to the initial hardcoded message
+            conversationArea.innerHTML = `
+                <div class="message bot">
+                    <div class="bubble">Hello, what do you want to plan today? I can create general outlines, slideshows, or even quizzes.</div>
+                </div>
+            `; 
+            alert("Conversation cleared!", 'info');
+        }
+
+        // 4. Save Final Output Function
+        function saveFinalOutput() {
+            // 1. Check if there is any substantial content to save
+            if (!lastAiOutput || lastAiOutput.trim().length < 50) {
+                alert('Please generate a full plan or quiz before attempting to save the final output.', 'error');
+                return;
+            }
+
+            const filename = `Lesson_Output.txt`;
+            const fileContent = lastAiOutput; // lastAiOutput is already clean Markdown text
+            const mimeType = 'text/plain';
+
+            const blob = new Blob([fileContent], { type: mimeType });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert(`Final output saved as ${filename}!`, 'info');
+            return;
+        }
+
+    </script>
+
+    </body>
+</html>
