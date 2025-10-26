@@ -11,8 +11,8 @@
   We know that learning isn’t always easy — sometimes studying feels overwhelming, and finding the right methods can be a challenge. For teachers, balancing creativity, planning, and busy schedules can be just as stressful. That’s why we created EduGenie: to make learning more accessible, engaging, and magical for everyone.
   Our mission is to help people learn and teach more effectively by bringing AI-powered creativity into the classroom. We faced our own hurdles while building EduGenie — from connecting the frontend and backend to merging files and debugging endless errors — but we kept pushing ourselves, trying new ideas, and learning as we went. In the end, we’re proud of what we built and how far we’ve come.
 
-📜 Our LinkedIn's
-  Luisa Ribeiro: https://www.linkedin.com/in/luisaaikoribeiro/
-  Mia Masmela: https://www.linkedin.com/in/mia-masmela/
-  Khushi Thakkar: https://www.linkedin.com/in/khushi-j-thakkar/
-  Zoe Schlesinger: https://www.linkedin.com/in/schlesinger-zoe/
+📜 Our LinkedIn's:
+  Luisa Ribeiro: https://www.linkedin.com/in/luisaaikoribeiro/.
+  Mia Masmela: https://www.linkedin.com/in/mia-masmela/.
+  Khushi Thakkar: https://www.linkedin.com/in/khushi-j-thakkar/.
+  Zoe Schlesinger: https://www.linkedin.com/in/schlesinger-zoe/.
