@@ -12,17 +12,30 @@ body {
   margin: 0px;
 }
 
+#starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
 .home-page button {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: #edd2eb;
+  float: top left;
+  top: 6.5%;
+  left: 6.5%;
+  color: white;
+  background-color: #4b0b79;
   border-radius: 40px;
   border: 1px #701769 solid;
   font-size: 15px;
   padding: 12px;
   cursor: pointer;
-  float: top left;
+  box-shadow: 0 0 15px 4px rgb(238, 238, 216); /* purple glow */
+  transition: box-shadow 0.3s ease-in-out;
+
 }
 
 .home-page button:hover {
@@ -30,8 +43,8 @@ body {
 }
 
 .chat-container {
-  width: 1000px;
-  height: 600px;
+  width: 90%;
+  height: 90%;
   background: #f9f9f9;
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
