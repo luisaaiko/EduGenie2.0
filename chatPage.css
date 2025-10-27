@@ -21,22 +21,21 @@ html, body {
   pointer-events: none;
 }
 
-
-
 .home-page button {
   position: absolute;
+  float: top left;
   z-index: 100;
-  top: 5%;
-  left: 5%;
+  top: 9.5%;
+  left: 2%;
   color: white;
   background-color: #4b0b79;
   border-radius: 40px;
   border: 1px #4b0b79 solid;
-  font-size: 14px;
-  padding: 8px 16px;
+  font-size: 15px;
+  padding: 12px;
   cursor: pointer;
   box-shadow: 0 0 10px 2px rgb(238, 238, 216);
-  transition: all 0.3s ease-in-out;
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .home-page button:hover {
@@ -44,13 +43,14 @@ html, body {
 }
 
 .chat-container {
+  background: #4b0b79;
   position: relative;
-  z-index: 1;
+  overflow: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  height: 100vh;              /* full viewport height */
-  justify-content: space-between;
-  padding-top: 100px;         /* pushes chat below header */
+  overflow: hidden;
+  margin: 0px;
 }
 
 .chat-box {
@@ -64,12 +64,16 @@ html, body {
 
 
 .chat-header {
-  font-family: 'Sniglet', cursive;
+  background-image: url("imgs/stars.jpg");
+  background-position: center;
+  background-size: 60%;
   font-size: 2rem;
-  color: white;
+  font-weight: 1000;
+  color: rgb(0, 0, 0);
   text-align: center;
-  margin-top: 40px; /* instead of being stuck low */
-  margin-bottom: 10px;
+  text-shadow: -1px 2px 2px #ffffff;
+  padding: 20px;
+  margin-bottom: 30px;
 }
 
 
